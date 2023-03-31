@@ -1,0 +1,221 @@
+<div>
+    <div class="row mt-3">
+      <div class="col-9">
+        <div class="bd-example">
+          <table class="table table-sm za-hando">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 10%">Code</th>
+                <th style="width: 20%">Name</th>
+                <th style="width: 15%">Downloads</th>
+                <th style="width: 20%">Owner</th>
+                <th style="width: 10%">State</th>
+                <th style="width: 15%">Icon</th>
+                <th style="width: 15%">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let myMod of modArray"
+              (click)="selectMod(myMod)"
+              [class.table-info]="myMod == selectedMod">
+                <th>{{ myMod.modCode }}</th>
+                <td>{{ myMod.modName }}</td>
+                <td>{{ myMod.modDownloads }}</td>
+                <td>{{ myMod.modOwner }}</td>
+                <td *ngIf="myMod.modState">Active</td>
+                <td *ngIf="!myMod.modState">Inactive</td>
+                <td>
+                  <img
+                    [src]="myMod.modBase64"
+                    alt="lul"
+                    style="width: 100px; height: auto"
+                    onerror="this.src='../../../assets/WeirdChamp.png'"
+                  />
+                </td>
+                <td class="align-middle">
+                  <i class="far fa-trash-alt text-danger" (click)="openButton(deleteModal, myMod)"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  
+      <div class="col-3">
+        <form #frmCreate="ngForm" (submit)="(frmCreate.form.valid && operations(frmCreate, $event, selectedMod))" novalidate>
+          <div class="mb-3">
+            <label for="myName" class="form-label">Name</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              id="myName"
+              name="myName"
+              aria-describedby="emailHelp"
+              #myName = "ngModel"
+              [(ngModel)] = "selectedMod.modName"
+              [ngClass]="{'is-invalid': frmCreate.submitted && myName.invalid}"
+              required
+            />
+            <div class="invalid-feedback"
+            *ngIf="frmCreate.submitted && myName.invalid">
+            <span *ngIf="myName.errors?.['required']">
+              You dumb fuckin cretin
+            </span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="myDownloads" class="form-label">Downloads</label>
+            <input type="number" 
+            class="form-control" 
+            id="myDownloads" 
+            name="myDownloads"
+            #myDownloads = "ngModel"
+            [(ngModel)]="selectedMod.modDownloads"
+            [ngClass]="{'is-invalid': frmCreate.submitted && myDownloads.invalid}"
+            required
+            />
+            <div class="invalid-feedback"
+            *ngIf="frmCreate.submitted && myDownloads.invalid">
+            <span *ngIf="myDownloads.errors?.['required']">
+              You dumb fuckin cretin
+            </span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="myOwner" class="form-label">Owner(You, probably)</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              id="myOwner"
+              name="myOwner"
+              aria-describedby="emailHelp"
+              #myOwner = "ngModel"
+              [(ngModel)] = "selectedMod.modOwner"
+              [ngClass]="{'is-invalid': frmCreate.submitted && myOwner.invalid}"
+              required
+            />
+            <div class="invalid-feedback"
+            *ngIf="frmCreate.submitted && myName.invalid">
+            <span *ngIf="myName.errors?.['required']">
+              You dumb fuckin cretin
+            </span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="myIcon" class="text-success">Icon</label>
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="myIcon"
+                name = "myIcon"
+                #image = "ngModel"
+                [(ngModel)] = "selectedMod.modIcon"
+                [ngClass]="{'is-invalid': frmCreate.submitted && image.invalid}"
+                required
+              />
+              <button class="btn btn-primary" (click)="hiddenBox.click()">
+                <span>+</span>
+                <input type="file" style="display: none" 
+                #hiddenBox
+                (change)="selectImage($event)"/>
+              </button>
+              <div class="invalid-feedback"
+              *ngIf="frmCreate.submitted && image.invalid">
+              <span *ngIf="image.errors?.['required']">
+                You dumb fuckin cretin
+              </span>
+              </div>
+            </div>
+
+            <div class="pt-3">
+              <div class="img-thumbnail d-flex justify-content-center" style="width: 100%; height: auto">
+                <img
+                  [src]="selectedMod.modBase64"
+                  alt="lol"
+                  style="width: 70%; height: auto"
+                  onerror="this.src = '../../../assets/WeirdChamp.png'"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="d-grid py-4" 
+            *ngIf="selectedMod.modCode == 0;
+            then: createPC
+            else: updateMod">
+          </div>
+          <ng-template #createPC>
+            <div class="mg-3">
+              <div class="d-flex justify-content-center">
+                <div class="d-grid gap-1 col-10">
+                  <button 
+                    type="submit" 
+                    class="btn btn-success btn-sm"
+                    id="btnCreate"
+                    name="btnCreate">
+                    Create
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-danger btn-sm"
+                    (click)="cancelMod(frmCreate)">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+  
+          <ng-template #updateMod>
+            <div class="mg-3">
+              <div class="d-flex justify-content-center">
+                <div class="d-grid gap-1 col-10">
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary btn-sm"
+                    id="btnUpdate"
+                    name="btnUpdate">
+                    Update
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-danger btn-sm"
+                    (click)="cancelMod(frmCreate)">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Welcome to the Modal zone -->
+  <ng-template #deleteModal>
+    <div class="modal-header bg-dark text-bg-dark" style="padding: 3px;">
+      <h5 class="modal-title">{{modalTitle}}</h5>
+    </div>
+    <div class="modal-body">
+      <p>
+        {{modalBody}} <br>
+        <strong>{{modalContent}}</strong>
+      </p>
+    </div>
+    <span aria-hidden="true" class="text-center">
+      <i *ngFor="let n of utilityArray(20)" class="fa fa-radiation-alt text-danger"></i>
+    </span>
+    <div class="modal-footer">
+      <button class="btn btn-sm btn-danger" type="button" (click)="deleteButton()">
+        Delete
+      </button>
+      <button class="btn btn-sm btn-secondary" type="button" (click)="cancelButton()">
+        Cancel
+      </button>
+    </div>
+  </ng-template>
+  
